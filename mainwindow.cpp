@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //QMainWindow::showMaximized();
     View *view = new View(&scene);
     this->setCentralWidget(view);
-    view->centerOn(view->list_bloks[4][4]);
+
 
 }
 

@@ -20,6 +20,7 @@ public:
     QList<QList<Blok*> > list_bloks;
     //int skore=0;
 
+
 protected:
     //void timerEvent(QTimerEvent * event);
     void keyPressEvent(QKeyEvent *event);
@@ -36,6 +37,7 @@ public slots:
     void Smazani3();
     void Smazani4();
     void Smazani5();
+    bool NachaziSe3();
     void CreateTextItems();
     void Casovac();
     void GameOver();
@@ -57,6 +59,7 @@ private:
     int skore=0;
     int cil=10;
     QTimer *timer;
+    bool bloky=false;
 
 
 

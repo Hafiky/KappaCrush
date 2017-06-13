@@ -1,6 +1,7 @@
 #ifndef BLOK_H
 #define BLOK_H
 #include <QGraphicsItem>
+class View;
 
 const int SIRKA_CTVERCE=50;
 
@@ -8,7 +9,7 @@ class Blok : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    Blok();
+    Blok(View *view);
     QRectF boundingRect() const;
 
     QColor getBarva() const;
@@ -21,6 +22,9 @@ public:
     QPointF getDruhy_pred() const;
     void setDruhy_pred(const QPointF &value);
 
+    View *getView() const;
+    void setView(View *value);
+
 protected:
 
     QPainterPath shape() const;
@@ -28,6 +32,8 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+
 
 signals:
     BlockMove(QPointF prvni_pred,QPointF druhy_pred);
@@ -37,6 +43,7 @@ private:
   QColor barva;
  QPointF prvni_pred;
  QPointF druhy_pred;
+ View *view;
 
 
 

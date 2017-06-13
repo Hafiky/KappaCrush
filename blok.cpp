@@ -1,4 +1,5 @@
 #include "blok.h"
+#include "view.h"
 #include <QPainter>
 #include <QPicture>
 #include <QPixmap>
@@ -10,9 +11,10 @@
 
 
 
-Blok::Blok()
+Blok::Blok(View *view)
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
+    this->view=view;
 }
 
 QRectF Blok::boundingRect() const
@@ -77,8 +79,8 @@ void Blok::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     druhy_pred.setY(posy);
 
     this->setZValue(1);    
-    if (druhy.x()+50 < prvni.x() || druhy.x()-50 > prvni.x() ||
-            druhy.y()+50 < prvni.y() || druhy.y()-50 > prvni.y()) {
+    if ((druhy.x()+50 < prvni.x() || druhy.x()-50 > prvni.x() ||
+            druhy.y()+50 < prvni.y() || druhy.y()-50 > prvni.y())) {
         qDebug()<<"víc než 1";
         ano=true;
 
@@ -104,6 +106,21 @@ void Blok::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
         druhy.setY(prvni.y()+SIRKA_CTVERCE);
     }
+//    qDebug()<<prvni;
+//    qDebug()<<this->getView()->list_bloks[prvni.x()/50][prvni.y()/50];
+//    qDebug()<<this->getView()->list_bloks[druhy.x()/50][druhy.y()/50];
+
+
+//    Blok *blok =this->getView()->list_bloks[prvni.x()/50][prvni.y()/50];
+//    this->getView()->list_bloks[prvni.x()/50][prvni.y()/50]=this->getView()->list_bloks[druhy.x()/50][druhy.y()/50];
+//    this->getView()->list_bloks[druhy.x()/50][druhy.y()/50]=blok;
+//view->NachaziSe3();
+
+
+//        Blok *blok2 =this->getView()->list_bloks[prvni.x()/50][prvni.y()/50];
+//        this->getView()->list_bloks[prvni.x()/50][prvni.y()/50]=this->getView()->list_bloks[druhy.x()/50][druhy.y()/50];
+//        this->getView()->list_bloks[druhy.x()/50][druhy.y()/50]=blok2;
+
 
 
     if (ano) {
@@ -148,6 +165,16 @@ void Blok::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 
 
+}
+
+View *Blok::getView() const
+{
+    return view;
+}
+
+void Blok::setView(View *value)
+{
+    view = value;
 }
 
 QPointF Blok::getDruhy_pred() const

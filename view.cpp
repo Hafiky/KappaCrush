@@ -18,24 +18,7 @@ View::View(QGraphicsScene *scene)
     // this->scene()->addRect(0,0,500,500,QPen(Qt::black),QBrush(QColor(100,230,100)));
     time = QTime::currentTime();
     qsrand((uint)time.msec());
-    for (int i = 0; i < VYSKA; ++i) {// i jsou radky, j sloupce
-        QList<Blok*> bloks;
 
-        for (int j = 0; j < SIRKA; ++j) {
-
-            Blok *blok = new Blok();
-            this->scene()->addItem(blok);
-            blok->setPos(j*SIRKA_CTVERCE,i*SIRKA_CTVERCE);
-            blok->setBarva(randomBarva());
-            blok->setZValue(1);
-
-            bloks.append(blok);
-            connect(blok,SIGNAL(BlockMove(QPointF,QPointF)),
-                    this, SLOT(OnBlockMove(QPointF,QPointF)));
-
-        }
-        list_bloks.append(bloks);
-    }
     CreateTextItems();
 
     timer = new QTimer(this);
@@ -81,6 +64,30 @@ void View::CreateTextItems()
 
 void View::Update()
 {
+    if (!bloky) {
+        for (int i = 0; i < VYSKA; ++i) {// i jsou radky, j sloupce
+            QList<Blok*> bloks;
+
+            for (int j = 0; j < SIRKA; ++j) {
+
+                Blok *blok = new Blok(this);
+                this->scene()->addItem(blok);
+                blok->setPos(j*SIRKA_CTVERCE,i*SIRKA_CTVERCE);
+                blok->setBarva(randomBarva());
+                blok->setZValue(1);
+
+                bloks.append(blok);
+                connect(blok,SIGNAL(BlockMove(QPointF,QPointF)),
+                        this, SLOT(OnBlockMove(QPointF,QPointF)));
+
+            }
+            list_bloks.append(bloks);
+
+        }
+        this->centerOn(this->list_bloks[4][4]);
+        bloky=true;
+    }
+
     Smazani5();
     Smazani4();
     Smazani3();
@@ -88,6 +95,7 @@ void View::Update()
     SchozeniBlokov();
     GenerovaniBlokov();
     Casovac();
+
 }
 
 
@@ -152,6 +160,12 @@ void View::DeleteBlok(int i, int j)
 
 void View::OnBlockMove(QPointF prvni_pred, QPointF druhy_pred)
 {
+
+
+    qDebug()<<prvni_pred.x();
+    qDebug()<<prvni_pred.y();
+    qDebug()<<druhy_pred.x();
+    qDebug()<<druhy_pred.y();
     BlockProhozeniIndex(prvni_pred.y()/SIRKA_CTVERCE,prvni_pred.x()/SIRKA_CTVERCE,
                         druhy_pred.y()/SIRKA_CTVERCE,druhy_pred.x()/SIRKA_CTVERCE);
 
@@ -169,24 +183,31 @@ void View::BlockProhozeniIndex(int posxprvni, int posyprvni, int posxdruhy, int 
         //qDebug() << list_bloks[posxprvni][posyprvni]->getBarva().name();
         //qDebug() << list_bloks[posxdruhy][posydruhy]->getBarva().name();
     }
+    qDebug()<<"druhy";
+    qDebug()<<list_bloks[posxprvni][posyprvni];
+    qDebug()<<"p";
+    qDebug()<<list_bloks[posxdruhy][posydruhy];
+
+
     Blok *blok =list_bloks[posxprvni][posyprvni];
     list_bloks[posxprvni][posyprvni]=list_bloks[posxdruhy][posydruhy];
     list_bloks[posxdruhy][posydruhy]=blok;
+
+    if (!NachaziSe3()) {
+        Blok *blok =list_bloks[posxprvni][posyprvni];
+        list_bloks[posxprvni][posyprvni]=list_bloks[posxdruhy][posydruhy];
+        list_bloks[posxdruhy][posydruhy]=blok;
+
+        list_bloks[posxprvni][posyprvni]->setPos(posyprvni*SIRKA_CTVERCE,posxprvni*SIRKA_CTVERCE);
+        list_bloks[posxdruhy][posydruhy]->setPos(posydruhy*SIRKA_CTVERCE,posxdruhy*SIRKA_CTVERCE);
+    }
+
     if (list_bloks[posxprvni][posyprvni]!=NULL &&
             list_bloks[posxdruhy][posydruhy]!=NULL ) {
         // qDebug() << list_bloks[posxprvni][posyprvni]->getBarva().name();
         // qDebug() << list_bloks[posxdruhy][posydruhy]->getBarva().name();
     }
-
-
-
-
-
     gameOverItem->setPos(-150,110);
-
-
-
-
     this->scene()->update();
 
 }
@@ -238,7 +259,7 @@ void View::GenerovaniBlokov()
     for (int i = 0; i < VYSKA; ++i) {
         for (int j = 0; j < SIRKA; ++j) {
             if (list_bloks[i][j]==NULL) {
-                Blok *blok = new Blok();
+                Blok *blok = new Blok(this);
                 this->scene()->addItem(blok);
                 blok->setPos(j*SIRKA_CTVERCE,i*SIRKA_CTVERCE);
                 blok->setBarva(randomBarva());
@@ -303,7 +324,8 @@ void View::Smazani4()
                     if (list_bloks[i][j]->getBarva() == list_bloks[i][j+1]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i][j+2]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i][j+3]->getBarva()) {
-                        qDebug() << "vodorovna";
+                        //qDebug() << "vodorovna";
+
                         DeleteBlok(i,j);
                         DeleteBlok(i,j+1);
                         DeleteBlok(i,j+2);
@@ -319,7 +341,7 @@ void View::Smazani4()
                     if (list_bloks[i][j]->getBarva() == list_bloks[i+1][j]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i+2][j]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i+3][j]->getBarva() ) {
-                        qDebug() << "svisla";
+                        //qDebug() << "svisla";
                         DeleteBlok(i,j);
                         DeleteBlok(i+1,j);
                         DeleteBlok(i+2,j);
@@ -344,7 +366,7 @@ void View::Smazani5()
                             list_bloks[i][j]->getBarva() == list_bloks[i][j+2]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i][j+3]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i][j+3]->getBarva()) {
-                        qDebug() << "vodorovna";
+                        //qDebug() << "vodorovna";
                         DeleteBlok(i,j);
                         DeleteBlok(i,j+1);
                         DeleteBlok(i,j+2);
@@ -363,7 +385,7 @@ void View::Smazani5()
                             list_bloks[i][j]->getBarva() == list_bloks[i+2][j]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i+3][j]->getBarva() &&
                             list_bloks[i][j]->getBarva() == list_bloks[i+4][j]->getBarva() ) {
-                        qDebug() << "svisla";
+                       // qDebug() << "svisla";
                         DeleteBlok(i,j);
                         DeleteBlok(i+1,j);
                         DeleteBlok(i+2,j);
@@ -383,3 +405,44 @@ void View::GameOver()
     scene()->update();
     timer->stop();
 }
+
+bool View::NachaziSe3()
+{
+    for (int i = 0; i < VYSKA; ++i) {
+        for (int j = 0; j < SIRKA; ++j) {
+            const char * name = list_bloks[i][j]->getBarva().name().toStdString().c_str();
+           // qDebug() << list_bloks[i][j]->getBarva().name();
+            //qDebug("%s ", name);
+           // printf("%s ",list_bloks[i][j]->getBarva().name().toLatin1().data());
+            if (j<SIRKA-2) {
+                if (list_bloks[i][j]!=NULL &&  list_bloks[i][j+1]!=NULL &&  list_bloks[i][j+2]!=NULL ) {
+
+
+                    if (list_bloks[i][j]->getBarva() == list_bloks[i][j+1]->getBarva() &&
+                            list_bloks[i][j]->getBarva() == list_bloks[i][j+2]->getBarva() ) {
+                        qDebug()<<"trojca";
+                        return true;
+
+                    }
+                }
+            }
+            if (i<VYSKA-2) {
+
+                if (list_bloks[i][j]!=NULL && list_bloks[i+1][j]!=NULL && list_bloks[i+2][j]!=NULL ) {
+
+                    if (list_bloks[i][j]->getBarva() == list_bloks[i+1][j]->getBarva() &&
+                            list_bloks[i][j]->getBarva() == list_bloks[i+2][j]->getBarva() ) {
+                        qDebug()<<"trojca";
+                        return true;
+
+                    }
+                }
+            }
+
+        }
+        //qDebug()<<" ";
+    }
+    qDebug()<<"neni trojca";
+    return false;
+}
+
